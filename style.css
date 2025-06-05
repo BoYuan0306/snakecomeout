@@ -1,0 +1,436 @@
+/* --- Global Styles & Variables --- */
+:root {
+    --primary-bg: #1a1a2e; /* 深藍紫色背景 */
+    --secondary-bg: #2a2a4e; /* 較淺的容器背景 */
+    --accent-color: #ff4081; /* 亮粉色，用於按鈕和標題 */
+    --text-color: #f0f0f0; /* 主要文字顏色 */
+    --light-text-color: #a0a0c0; /* 輔助文字顏色 */
+    --border-color: #4a4a6e;
+    --canvas-bg: #0f0f1c; /* 遊戲畫布背景 */
+    --snake-head-color: #00e676; /* 蛇頭 - 亮綠色 */
+    --snake-body-color: #00bfa5; /* 蛇身 - 深綠色 */
+    --food-color: #ffeb3b; /* 食物 - 黃色 */
+    --grid-line-color: rgba(255, 255, 255, 0.05); /* 格線顏色 */
+
+    --font-primary: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --font-title: 'Arial Black', Gadget, sans-serif; /* 更粗獷的標題字體 */
+
+    --button-bg: var(--accent-color);
+    --button-hover-bg: #ff79b0;
+    --button-text-color: white;
+    --button-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+body {
+    font-family: var(--font-primary);
+    background-color: var(--primary-bg);
+    color: var(--text-color);
+    margin: 0;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    box-sizing: border-box;
+    overflow-x: hidden; /* 防止水平滾動 */
+}
+
+/* --- Game Wrapper & Header --- */
+.game-wrapper {
+    background-color: var(--secondary-bg);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 600px; /* 限制最大寬度 */
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.game-header h1 {
+    font-family: var(--font-title);
+    color: var(--accent-color);
+    font-size: 2.8em;
+    margin: 0 0 10px 0;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+.game-header .deluxe-text {
+    font-size: 0.7em;
+    color: #ffd700; /*金色*/
+    vertical-align: super;
+    margin-left: 5px;
+}
+
+.score-area {
+    display: flex;
+    justify-content: space-around;
+    font-size: 1.3em;
+    margin-bottom: 20px;
+    color: var(--light-text-color);
+}
+.current-score span, .high-score span {
+    color: var(--food-color); /* Yellow for score numbers */
+    font-weight: bold;
+}
+
+/* --- Game Board & Canvas --- */
+.game-board-container {
+    position: relative; /* For overlay positioning */
+    width: 100%;
+    /* aspect-ratio: 1 / 1; /* Ensure canvas container is square, canvas itself will be set by JS */
+    max-width: 500px; /* Max width for canvas itself */
+    margin: 0 auto 15px auto; /* Center container */
+}
+
+canvas#gameCanvas {
+    display: block;
+    background-color: var(--canvas-bg);
+    border: 3px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.4);
+    width: 100%; /* Canvas will take full width of its container */
+    height: auto; /* Height will be set based on width to maintain square */
+}
+
+/* --- Overlays (Start, Pause, Game Over) --- */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(26, 26, 46, 0.9); /* Semi-transparent overlay */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px; /* Match canvas border-radius */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 10;
+    padding: 20px;
+    box-sizing: border-box;
+}
+.overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+.overlay h2 {
+    color: var(--accent-color);
+    font-size: 2em;
+    margin-bottom: 15px;
+}
+.overlay p {
+    font-size: 1.1em;
+    margin-bottom: 20px;
+    color: var(--light-text-color);
+    max-width: 80%;
+}
+
+/* --- Buttons --- */
+.game-button, .difficulty-selector select, .player-name-input-container input {
+    background-color: var(--button-bg);
+    color: var(--button-text-color);
+    border: none;
+    padding: 12px 25px;
+    border-radius: 6px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    margin: 8px;
+    box-shadow: var(--button-shadow);
+    font-weight: bold;
+}
+.game-button:hover, .difficulty-selector select:hover {
+    background-color: var(--button-hover-bg);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+}
+.game-button:active {
+    transform: translateY(0px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.game-button:disabled, .pause-toggle-button:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+.pause-toggle-button {
+    margin-top: 10px;
+}
+
+/* Difficulty Selector */
+.difficulty-selector {
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.difficulty-selector label {
+    margin-right: 10px;
+    font-size: 1em;
+    color: var(--light-text-color);
+}
+.difficulty-selector select {
+    padding: 10px 15px;
+    background-color: var(--secondary-bg);
+    border: 2px solid var(--border-color);
+    color: var(--text-color);
+}
+
+/* Player Name Input */
+.player-name-input-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    width: 100%;
+    max-width: 300px;
+}
+.player-name-input-container input {
+    flex-grow: 1;
+    padding: 12px;
+    margin-right: 8px;
+    background-color: var(--primary-bg);
+    border: 2px solid var(--border-color);
+    color: var(--text-color);
+    text-align: center;
+    text-transform: uppercase;
+}
+.player-name-input-container input::placeholder {
+    color: var(--light-text-color);
+    opacity: 0.7;
+}
+
+
+/* --- Mobile Controls --- */
+.mobile-controls {
+    display: none; /* Hidden by default, shown via JS or media query */
+    flex-direction: column;
+    align-items: center;
+    margin-top: 15px;
+}
+.mobile-controls div {
+    display: flex;
+    justify-content: center;
+}
+.control-btn {
+    background-color: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: var(--text-color);
+    width: 55px;
+    height: 55px;
+    margin: 5px;
+    border-radius: 8px;
+    font-size: 1.8em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none; /* Prevent text selection on tap */
+    transition: background-color 0.1s ease;
+}
+.control-btn:active {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+@media (hover: none) and (pointer: coarse) { /* Show for touch devices */
+    .mobile-controls {
+        display: flex;
+    }
+}
+/* Hide keyboard-centric messages on touch devices */
+@media (hover: none) and (pointer: coarse) {
+    .start-screen p:first-of-type {
+        display: none; /* Hides "Use arrow keys or WASD" on touch */
+    }
+}
+
+
+/* --- Leaderboard Section --- */
+.leaderboard-section {
+    background-color: var(--secondary-bg);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    width: 100%;
+    max-width: 550px;
+    margin-bottom: 30px;
+}
+.leaderboard-section h2 {
+    color: var(--accent-color);
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.8em;
+}
+.leaderboard-section h2 i {
+    margin-right: 10px;
+    color: #ffd700; /* Gold trophy */
+}
+
+#leaderboardList {
+    list-style: none;
+    padding: 0;
+    max-height: 250px;
+    overflow-y: auto;
+}
+#leaderboardList li {
+    background-color: var(--primary-bg);
+    padding: 12px 18px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.1em;
+    border-left: 4px solid var(--accent-color);
+    transition: background-color 0.2s ease;
+}
+#leaderboardList li:nth-child(odd) {
+    background-color: #20203c; /* Slightly different for odd rows */
+}
+#leaderboardList li:hover {
+    background-color: #30305a;
+}
+#leaderboardList .rank {
+    font-weight: bold;
+    color: var(--accent-color);
+    margin-right: 15px;
+    min-width: 25px; /* Ensure rank numbers align nicely */
+}
+#leaderboardList .name {
+    flex-grow: 1;
+    text-align: left;
+    color: var(--text-color);
+    font-weight: 500;
+}
+#leaderboardList .score {
+    font-weight: bold;
+    color: var(--food-color); /* Yellow score */
+}
+
+/* Custom Scrollbar for Leaderboard (Webkit) */
+#leaderboardList::-webkit-scrollbar {
+    width: 8px;
+}
+#leaderboardList::-webkit-scrollbar-track {
+    background: var(--secondary-bg);
+    border-radius: 10px;
+}
+#leaderboardList::-webkit-scrollbar-thumb {
+    background: var(--accent-color);
+    border-radius: 10px;
+}
+#leaderboardList::-webkit-scrollbar-thumb:hover {
+    background: var(--button-hover-bg);
+}
+
+
+/* --- Instructions Section --- */
+.instructions-section {
+    background-color: var(--secondary-bg);
+    padding: 15px 25px;
+    border-radius: 10px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 550px;
+    font-size: 0.95em;
+    color: var(--light-text-color);
+    text-align: left;
+}
+.instructions-section h3, .instructions-section h4 {
+    color: var(--accent-color);
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+.instructions-section h3 i, .instructions-section h4 i {
+    margin-right: 8px;
+}
+.instructions-section p, .instructions-section ul {
+    margin-bottom: 10px;
+    line-height: 1.7;
+}
+.instructions-section ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+.instructions-section ul li {
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+}
+.food-icon {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border-radius: 4px; /* Slightly rounded square */
+    margin-right: 10px;
+    border: 1px solid rgba(255,255,255,0.4);
+    flex-shrink: 0; /* Prevent shrinking on small screens */
+}
+.normal-food { background-color: var(--food-color); }
+.speed-boost-food { background-color: #2196f3; /* Blue */ }
+.slow-mo-food { background-color: #7e57c2; /* Deep Purple */ }
+.shield-food { background-color: #4caf50; /* Green (different from snake) */ }
+.score-bonus-food { background-color: #ff9800; /* Orange */ }
+.shrink-food { background-color: #e91e63; /* Pink */ }
+
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 650px) {
+    .game-wrapper, .leaderboard-section, .instructions-section {
+        width: 95%;
+        padding: 15px;
+    }
+    .game-header h1 {
+        font-size: 2.2em;
+    }
+    .score-area {
+        font-size: 1.1em;
+    }
+    .game-button, .difficulty-selector select, .player-name-input-container input {
+        padding: 10px 18px;
+        font-size: 0.9em;
+    }
+    .overlay h2 {
+        font-size: 1.8em;
+    }
+    .overlay p {
+        font-size: 1em;
+    }
+    .player-name-input-container {
+        flex-direction: column;
+    }
+    .player-name-input-container input {
+        margin-right: 0;
+        margin-bottom: 8px;
+        width: calc(100% - 24px); /* Adjust for padding */
+    }
+}
+
+@media (max-width: 400px) {
+    .game-header h1 {
+        font-size: 1.8em;
+    }
+    .score-area {
+        flex-direction: column;
+        align-items: center;
+    }
+    .current-score {
+        margin-bottom: 5px;
+    }
+    .mobile-controls {
+        margin-top: 10px;
+    }
+    .control-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 1.6em;
+    }
+    #leaderboardList li {
+        font-size: 1em;
+        padding: 10px 12px;
+    }
+}

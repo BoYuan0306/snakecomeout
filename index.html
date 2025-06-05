@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>超級貪吃蛇 Deluxe</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-wrapper">
+        <header class="game-header">
+            <h1>超級貪吃蛇 <span class="deluxe-text">Deluxe</span></h1>
+            <div class="score-area">
+                <div class="current-score">得分: <span id="score">0</span></div>
+                <div class="high-score">最高分: <span id="highScore">0</span></div>
+            </div>
+        </header>
+
+        <div class="game-board-container">
+            <canvas id="gameCanvas"></canvas>
+            <div id="startScreen" class="overlay start-screen active">
+                <h2>準備好了嗎？</h2>
+                <p>使用方向鍵或WASD鍵控制方向</p>
+                <button id="startButton" class="game-button">開始遊戲</button>
+                <div class="difficulty-selector">
+                    <label for="difficulty">選擇難度: </label>
+                    <select id="difficulty">
+                        <option value="easy">簡單</option>
+                        <option value="medium" selected>普通</option>
+                        <option value="hard">困難</option>
+                        <option value="insane">瘋狂</option>
+                    </select>
+                </div>
+            </div>
+            <div id="pauseScreen" class="overlay pause-screen">
+                <h2>遊戲暫停</h2>
+                <button id="resumeButton" class="game-button">繼續遊戲</button>
+            </div>
+            <div id="gameOverScreen" class="overlay game-over-screen">
+                <h2>遊戲結束！</h2>
+                <p>你的得分: <span id="finalScore">0</span></p>
+                <div class="player-name-input-container">
+                    <input type="text" id="playerName" placeholder="輸入你的名字 (最多3個字母)" maxlength="3">
+                    <button id="submitScoreButton" class="game-button">提交到排行榜</button>
+                </div>
+                <button id="restartButton" class="game-button">重新開始</button>
+            </div>
+        </div>
+
+        <div class="mobile-controls" id="mobileControls">
+            <button class="control-btn" id="btnUp">▲</button>
+            <div>
+                <button class="control-btn" id="btnLeft">◄</button>
+                <button class="control-btn" id="btnDown">▼</button>
+                <button class="control-btn" id="btnRight">►</button>
+            </div>
+        </div>
+         <button id="pauseToggleButton" class="game-button pause-toggle-button" disabled>暫停</button>
+    </div>
+
+    <div class="leaderboard-section">
+        <h2><i class="fas fa-trophy"></i> 排行榜</h2>
+        <ul id="leaderboardList">
+            </ul>
+    </div>
+
+    <div class="instructions-section">
+        <h3><i class="fas fa-info-circle"></i> 遊戲說明：</h3>
+        <p>- 使用鍵盤方向鍵 (↑, ↓, ←, →) 或 WASD 鍵控制蛇的移動。</p>
+        <p>- 在觸控螢幕上，可使用畫面下方的虛擬方向鍵。</p>
+        <p>- 吃到食物會變長並得分。避免撞到牆壁或自己的身體！</p>
+        <p>- 按下 'P' 鍵或點擊暫停按鈕可以暫停/繼續遊戲。</p>
+        <h4><i class="fas fa-star"></i> 特殊道具效果 (隨機出現):</h4>
+        <ul>
+            <li><span class="food-icon normal-food"></span> 普通食物: +10分, 蛇長度+1</li>
+            <li><span class="food-icon speed-boost-food"></span> 速度膠囊 (持續5秒): 蛇移動速度加快，期間得分x2！</li>
+            <li><span class="food-icon slow-mo-food"></span> 緩速果凍 (持續5秒): 蛇移動速度減慢，更容易控制。</li>
+            <li><span class="food-icon shield-food"></span> 守護之星 (1次): 獲得護盾，下一次碰撞不會死亡。</li>
+            <li><span class="food-icon score-bonus-food"></span> 幸運金幣: 直接獲得額外 +50 分！</li>
+            <li><span class="food-icon shrink-food"></span> 縮小藥水: 蛇的長度減少2節 (最少保留3節)。</li>
+        </ul>
+    </div>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="script.js"></script>
+</body>
+</html>
